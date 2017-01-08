@@ -14,28 +14,27 @@ def clean_data(text):
 
 
 def extract_data(path, limit=61000):
-    labels, titles, contents = [], [], []
+    labels, contents = [], []
     counter = 0
     for line in open(path, encoding='utf8'):
         if counter == limit:
             break
-        label, title, content = line.split('\t')
+        label, content = line.split('\t', maxsplit=1)
         labels.append(label)
-        # titles.append(clean_data(title))
         contents.append(clean_data(content))
 
         counter += 1
-    return labels, titles, contents
+    return labels, contents
 
 
-labels, titles, contents = extract_data('news/news_train.txt')
+labels, contents = extract_data('news/news_train.txt')
 
-# решено не использовать заголовки
+# вместе с заголовком
 train_data = contents
 print("Reading finished")
 
 # векторизация
-tfid_vectorizer = TfidfVectorizer(max_features=30000, norm='l1')
+tfid_vectorizer = TfidfVectorizer(max_features=31000, norm='l1')
 train_vect_data = tfid_vectorizer.fit_transform(train_data)
 print("Vectorized:", train_vect_data.shape)
 
@@ -47,8 +46,7 @@ print("Trained")
 # чтение тестовых данных из файла
 test_data = []
 for line in open('news/news_test.txt', encoding='utf8'):
-    test_title, test_content = line.split('\t')
-    test_data.append(clean_data(test_content))
+    test_data.append(clean_data(line))
 
 # векторизация тестовых данных
 test_vect_data = tfid_vectorizer.transform(test_data)
